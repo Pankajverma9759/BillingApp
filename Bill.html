@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kirana List Builder</title>
+  <style>
+    :root{
+      --bg:#0f172a; /* slate-900 */
+      --card:#111827; /* gray-900 */
+      --muted:#1f2937; /* gray-800 */
+      --text:#e5e7eb; /* gray-200 */
+      --sub:#9ca3af;  /* gray-400 */
+      --brand:#22c55e;/* green-500 */
+      --accent:#38bdf8;/* sky-400 */
+      --danger:#ef4444;/* red-500 */
+      --warn:#f59e0b; /* amber-500 */
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#111827);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    header{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:44px;height:44px;border-radius:14px;background:conic-gradient(from 180deg at 50% 50%,var(--brand),var(--accent));box-shadow:0 8px 30px rgba(34,197,94,.35)}
+    h1{font-size:1.4rem;margin:0}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .control{background:var(--card);border:1px solid #1f2937;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:8px}
+    .control input,.control select{background:transparent;border:none;outline:none;color:var(--text)}
+    .pill{padding:6px 10px;border:1px solid #1f2937;border-radius:999px;background:white;cursor:pointer;font-size:.9rem}
+    .pill.active{background:var(--brand);color:#06270f;border-color:transparent}
+    .layout{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,var(--card),#0b1220);border:1px solid #1f2937;border-radius:var(--radius);padding:14px;box-shadow:0 10px 35px rgba(0,0,0,.25)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .section-title h2{font-size:1rem;margin:0;color:#f3f4f6}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    .item{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.02);border:1px solid #1f2937;border-radius:14px;padding:10px}
+    .item .meta{display:flex;flex-direction:column}
+    .item .name{font-weight:600}
+    .item .cat{color:var(--sub);font-size:.8rem}
+    .btn{border:none;border-radius:12px;padding:8px 10px;color:#061b0a;background:var(--brand);cursor:pointer;font-weight:600}
+    .btn.icon{display:inline-flex;align-items:center;gap:6px}
+    .btn.secondary{background:var(--accent);color:#062237}
+    .btn.ghost{background:transparent;color:var(--text);border:1px dashed #334155}
+    .btn.danger{background:var(--danger);color:#2b0a0a}
+    .btn.warn{background:var(--warn);color:#2d1a00}
+    .inline{display:flex;gap:8px;align-items:center}
+    .qty{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid #1f2937;border-radius:12px;padding:6px}
+    .qty button{background:transparent;border:none;color:var(--text);font-size:1.1rem;cursor:pointer}
+    .list-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .list-table th{font-size:.9rem;color:#d1d5db;text-align:left}
+    .list-table td{background:rgba(255,255,255,.03);border:1px solid #1f2937;padding:10px;border-radius:10px}
+    .right{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    .footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;color:var(--sub);font-size:.9rem}
+    .badge{font-size:.8rem;opacity:.9}
+    .hidden{display:none}
+    .note{width:100%;background:transparent;border:none;color:var(--text);outline:none}
+    /* Print */
+    @media print{
+      header,.hide-print{display:none!important}
+      body{background:white;color:black}
+      .card{box-shadow:none;border:none;padding:0}
+      .container{max-width:100%;padding:0}
+    }
+    .hidden { display: none; }
+
+@media print {
+  body > *:not(#printArea) {
+    display: none !important;
+  }
+  #printArea {
+    display: block !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ✅ Base adjustments for small screens */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .control {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .inline {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .pill {
+    flex: 1 1 45%;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr; /* catalog ऊपर, list नीचे */
+  }
+
+  .grid {
+    grid-template-columns: 1fr; /* items एक कॉलम में */
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .list-table th,
+  .list-table td {
+    font-size: 0.85rem;
+    padding: 6px;
+  }
+
+  .qty {
+    gap: 4px;
+    padding: 4px 6px;
+  }
+}
+
+  </style>
+</head>
+<body>
+    <div id="printArea" class="hidden"></div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>उमेश वर्मा किराना स्टोर</h1>
+          <!-- <div class="badge">HTML + CSS + JS (ऑफ़लाइन काम करता है)</div> -->
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control">
+          <span>स्टोर:</span>
+          <select id="storeSelect" title="Store">
+            <option value="Default Store">Default Store</option>
+            <option value="Gupta Kirana">Gupta Kirana</option>
+            <option value="Sharma General">Sharma General</option>
+            <option value="More Retail">More Retail</option>
+          </select>
+          <button class="btn ghost" id="addStoreBtn">+ नया</button>
+        </div>
+        <div class="control">
+          <span>खोज:</span>
+          <input id="search" placeholder="चावल, दाल, तेल…" />
+        </div>
+        <div class="inline hide-print">
+          <button class="pill active" data-cat="all">All</button>
+          <button class="pill" data-cat="Grocery">Grocery</button>
+          <button class="pill" data-cat="Masala">Masala</button>
+          <button class="pill" data-cat="Snacks">Snacks</button>
+          <button class="pill" data-cat="Beverage">Beverage</button>
+          <button class="pill" data-cat="Personal Care">Personal Care</button>
+          <button class="pill" data-cat="Cleaning">Cleaning</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Catalog -->
+      <section class="card" aria-label="catalog">
+        <div class="section-title">
+          <h2>सामान चुनें</h2>
+          <div class="inline">
+            <button class="btn ghost" id="addCustomItem">+ Custom Item</button>
+            <button class="btn secondary" id="clearFilters">Clear Filters</button>
+          </div>
+        </div>
+        <div id="catalog" class="grid" role="list"></div>
+      </section>
+
+      <!-- Selected List -->
+      <section class="card" aria-label="list">
+        <div class="section-title">
+          <h2>मेरी लिस्ट</h2>
+          <div class="inline">
+            <button class="btn" id="copyBtn" title="Copy to clipboard">Copy</button>
+            <button class="btn" id="csvBtn" title="Download CSV">CSV</button>
+            <button class="btn warn" id="printBtn" title="Print / PDF">Print</button>
+            <button class="btn danger" id="clearListBtn" title="Clear list">Clear</button>
+          </div>
+        </div>
+        <table class="list-table" id="listTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Unit</th>
+              <th>Note</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="listBody"></tbody>
+        </table>
+        <div class="footer">
+          <div><strong id="totalItems">0</strong> items • <span id="storeNameView">Default Store</span></div>
+          <div class="inline">
+            <span class="badge">Auto-Save: On (LocalStorage)</span>
+            <button class="btn ghost" id="saveBtn">Save Now</button>
+            <button class="btn ghost" id="loadBtn">Load</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // ====== Data ======
+    const CATALOG = [
+      // Grocery
+       {id:'sugar', name:'चीनी', cat:'Grocery', unit:'कट्टा'},
+      {id:'rice', name:'चावल', cat:'Grocery', unit:'कट्टा'},
+      {id:'kamla', name:'कमला पसंद', cat:'Grocery', unit:'Packet'},
+      {id:'gagan', name:'गगन', cat:'Grocery', unit:'Packet'},
+      {id:'hathigola', name:'हाथीगौला', cat:'Grocery', unit:'Packet'},
+      {id:'kuber', name:'कुबेर', cat:'Grocery', unit:'Packet'},
+      {id:'kurkare', name:'G.K कुरकुरे', cat:'Grocery', unit:'Packet'},
+
+      {id:'besan', name:'बेसन', cat:'Grocery', unit:'kg'},
+      {id:'Arhar', name:'अरहर दाल', cat:'Grocery', unit:'kg'},
+      {id:'urd', name:'उर्द दाल', cat:'Grocery', unit:'kg'},
+      {id:'dal_moong', name:' मूंग दाल', cat:'Grocery', unit:'kg'},
+      {id:'dal_masoor', name:'मसूर दाल', cat:'Grocery', unit:'kg'},
+      {id:'chana_dal', name:'चना दाल', cat:'Grocery', unit:'kg'},
+      {id:'boora', name:'बूरा', cat:'Grocery', unit:'kg'},
+      {id:'soyabeen_badi', name:'सोयाबीन बड़ी', cat:'Grocery', unit:'kg'},
+      {id:'suji', name:'सूजी', cat:'Grocery', unit:'kg'},
+      {id:'doodh_peti', name:'दूध पेटी', cat:'Grocery', unit:'पेटी'},
+      {id:'aachar', name:'आचार', cat:'Grocery', unit:'डब्बा'},
+      {id:'salt', name:'नमक (Salt)', cat:'Grocery', unit:'कट्टा'},
+      {id:'oil_mustard', name:'सरसों तेल', cat:'Grocery', unit:'पीपा'},
+      {id:'oil_refined', name:'राग Gold', cat:'Grocery', unit:'पेटी'},
+      {id:'rai', name:'चाबी माचिश(2)', cat:'Masala', unit:'packet'},
+      {id:'rai', name:'चाबी माचिश(1)', cat:'Masala', unit:'packet'},
+     
+     
+      // Masala
+      {id:'haldi', name:'हल्दी पाउडर', cat:'Masala', unit:'packet'},
+      {id:'mirch', name:'लाल मिर्च पाउडर', cat:'Masala', unit:'packet'},
+      {id:'dhania', name:'धनिया पाउडर', cat:'Masala', unit:'packet'},
+      {id:'garam', name:'गरम BDM मसाला(2)', cat:'Masala', unit:'packet'},
+      {id:'jeera', name:'जीरा', cat:'Masala', unit:'packet'},
+     
+      // Snacks
+      {id:'biscuits', name:'पारले जी', cat:'Snacks', unit:'पेटी'},
+      {id:'biscuits', name:'Mom`s Magic पेटी', cat:'Snacks', unit:'पेटी'},
+      {id:'biscuits', name:'Bounce(Cream) पेटी', cat:'Snacks', unit:'पेटी'},
+      {id:'biscuits', name:'बटर पेटी ', cat:'Snacks', unit:'पेटी'},
+      {id:'biscuits', name:'Twins पेटी ', cat:'Snacks', unit:'पेटी'},
+      {id:'biscuits', name:'Butter Delite पेटी ', cat:'Snacks', unit:'पेटी'},
+   
+      {id:'namkeen', name:'चिराग नमकीन(3kg)', cat:'Snacks', unit:'pkt'},
+      {id:'noodles', name:'नूडल्स', cat:'Snacks', unit:'pkt'},
+      // Beverage
+      {id:'tea', name:'चाय पत्ती', cat:'Beverage', unit:'pkt'},
+      {id:'coffee', name:'कॉफ़ी', cat:'Beverage', unit:'jar'},
+      {id:'milk', name:'दूध (UHT)', cat:'Beverage', unit:'L'},
+      // Personal Care
+      {id:'soap', name:'साबुन', cat:'Personal Care', unit:'pcs'},
+      {id:'shampoo', name:'शैम्पू', cat:'Personal Care', unit:'bottle'},
+      {id:'toothpaste', name:'टूथपेस्ट', cat:'Personal Care', unit:'tube'},
+      // Cleaning
+      {id:'detergent', name:'पूजा सर्फ(1kg)', cat:'Cleaning', unit:'कट्टा'},
+      {id:'detergent01', name:'पूजा सर्फ(500gm)', cat:'Cleaning', unit:'कट्टा'},
+      {id:'detergent02', name:'पूजा सर्फ(10)', cat:'Cleaning', unit:'कट्टा'},
+       {id:'detergent03', name:'पूजा सर्फ(5)', cat:'Cleaning', unit:'कट्टा'},
+       {id:'detergent04', name:'पूजा साबुन', cat:'Cleaning', unit:' पेटी'},
+      {id:'detergent05', name:'पूजा साबुन', cat:'Cleaning', unit:' पेटी'},
+      {id:'detergent06', name:'Rin साबुन', cat:'Cleaning', unit:'Packet'},
+      {id:'detergent07', name:'Sargam साबुन', cat:'Cleaning', unit:' Packets'},
+       {id:'detergent4', name:'Goldy साबुन', cat:'Cleaning', unit:' Packets'},
+
+      {id:'phenyl', name:'फिनाइल', cat:'Cleaning', unit:'bottle'},
+      {id:'dishwash', name:'डिशवॉश', cat:'Cleaning', unit:'bar'},
+
+      {id:'detergent5', name:'No.1', cat:'Cleaning', unit:' Packets'},
+      {id:'detergent6', name:'Lux', cat:'Cleaning', unit:' Packets'},
+      {id:'detergent7', name:'Lifebuoy', cat:'Cleaning', unit:' Packets'},
+      {id:'detergent7', name:'Santoor', cat:'Cleaning', unit:' Packets'},
+      {id:'detergent7', name:'Nirma(Nibu)', cat:'Cleaning', unit:' Packets'},
+      {id:'detergent7', name:'Dettol', cat:'Cleaning', unit:'Piece'},
+      ];;
+
+    const $ = (s,root=document)=>root.querySelector(s);
+    const $$ = (s,root=document)=>[...root.querySelectorAll(s)];
+
+    const state = {
+      filter:{cat:'all', q:''},
+      list:[], // {id,name,unit,qty,note}
+    };
+
+    const storeKey = ()=>'kirana_lists_v1';
+
+    // ====== Catalog Render ======
+    function matches(item){
+      const catOk = state.filter.cat==='all' || item.cat===state.filter.cat;
+      const q = state.filter.q.trim().toLowerCase();
+      const qOk = !q || item.name.toLowerCase().includes(q);
+      return catOk && qOk;
+    }
+
+    function renderCatalog(){
+      const wrap = $('#catalog');
+      wrap.innerHTML = '';
+      CATALOG.filter(matches).forEach(item=>{
+        const div = document.createElement('div');
+        div.className='item';
+        div.innerHTML = `
+          <div class="meta">
+            <span class="name">${item.name}</span>
+            <span class="cat">${item.cat} • Unit: ${item.unit}</span>
+          </div>
+          <div class="inline">
+            <div class="qty" data-id="${item.id}">
+              <button aria-label="dec">−</button>
+              <span class="val">1</span>
+              <button aria-label="inc">+</button>
+            </div>
+            <button class="btn icon" data-add="${item.id}">Add</button>
+          </div>
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    // ====== List Ops ======
+    function addToList(id, qty=1){
+      const meta = CATALOG.find(x=>x.id===id) || {id, name:id, unit:'pcs'};
+      const existing = state.list.find(x=>x.id===id);
+      if(existing){ existing.qty += qty; }
+      else{ state.list.push({id:meta.id, name:meta.name, unit:meta.unit, qty:qty, note:''}); }
+      renderList();
+      autoSave();
+    }
+
+    function changeQty(id, delta){
+      const it = state.list.find(x=>x.id===id);
+      if(!it) return;
+      it.qty = Math.max(1, it.qty + delta);
+      renderList();
+      autoSave();
+    }
+
+    function setNote(id, note){
+      const it = state.list.find(x=>x.id===id);
+      if(!it) return;
+      it.note = note;
+      autoSaveDebounced();
+    }
+
+    function removeItem(id){
+      state.list = state.list.filter(x=>x.id!==id);
+      renderList();
+      autoSave();
+    }
+
+    function clearList(){
+      if(!confirm('पूरी लिस्ट साफ़ कर दें?')) return;
+      state.list = [];
+      renderList();
+      autoSave();
+    }
+
+    function renderList(){
+      const body = $('#listBody');
+      body.innerHTML = '';
+      state.list.forEach((it,idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td>${it.name}</td>
+          <td>
+            <div class="qty">
+              <button data-q="-1" data-id="${it.id}">−</button>
+              <span class="val">${it.qty}</span>
+              <button data-q="1" data-id="${it.id}">+</button>
+            </div>
+          </td>
+          <td>${it.unit}</td>
+          <td>
+            <input class="note" placeholder="e.g. बासमती / ब्रांड" value="${it.note || ''}" data-note="${it.id}" />
+          </td>
+          <td class="right">
+            <button class="btn danger" data-del="${it.id}">Remove</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+      $('#totalItems').textContent = state.list.length;
+      $('#storeNameView').textContent = $('#storeSelect').value;
+    }
+
+    // ====== Filters & Search ======
+    function bindFilters(){
+      $$('#header .pill').forEach(p=>p.addEventListener('click', onPill));
+    }
+
+    // (Direct simple handler without header id)
+    $$('.pill').forEach(p=>{
+      p.addEventListener('click', (e)=>{
+        $$('.pill').forEach(x=>x.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        state.filter.cat = e.currentTarget.dataset.cat;
+        renderCatalog();
+      });
+    });
+
+    $('#search').addEventListener('input', (e)=>{
+      state.filter.q = e.target.value;
+      renderCatalog();
+    });
+
+    $('#clearFilters').addEventListener('click', ()=>{
+      state.filter = {cat:'all', q:''};
+      $('#search').value='';
+      $$('.pill').forEach(x=>x.classList.remove('active'));
+      $$('.pill')[0].classList.add('active');
+      renderCatalog();
+    });
+
+    // ====== Catalog interactions (qty & add) ======
+    document.addEventListener('click', (e)=>{
+      const incWrap = e.target.closest('.qty');
+      if(incWrap && incWrap.dataset.id){
+        const val = incWrap.querySelector('.val');
+        if(e.target.getAttribute('aria-label')==='inc'){ val.textContent = +val.textContent + 1; }
+        if(e.target.getAttribute('aria-label')==='dec'){ val.textContent = Math.max(1, +val.textContent - 1); }
+      }
+      const addBtn = e.target.closest('[data-add]');
+      if(addBtn){
+        const id = addBtn.dataset.add;
+        const qtyBox = addBtn.parentElement.querySelector('.qty .val');
+        const qty = qtyBox? +qtyBox.textContent : 1;
+        addToList(id, qty);
+      }
+      const del = e.target.closest('[data-del]');
+      if(del){ removeItem(del.dataset.del); }
+      const qBtn = e.target.closest('[data-q]');
+      if(qBtn){ changeQty(qBtn.dataset.id, +qBtn.dataset.q); }
+    });
+
+    document.addEventListener('input', (e)=>{
+      const note = e.target.closest('[data-note]');
+      if(note){ setNote(note.dataset.note, e.target.value); }
+    });
+
+    // ====== Store Switch / Add ======
+    $('#addStoreBtn').addEventListener('click', ()=>{
+      const name = prompt('नए स्टोर का नाम लिखें:');
+      if(!name) return;
+      const opt = document.createElement('option');
+      opt.value=name; opt.textContent=name;
+      $('#storeSelect').appendChild(opt);
+      $('#storeSelect').value=name;
+      loadForStore();
+    });
+
+    $('#storeSelect').addEventListener('change', ()=>{
+      loadForStore();
+    });
+
+    // ====== Persistence (LocalStorage) ======
+    function getAllSaved(){
+      try{ return JSON.parse(localStorage.getItem(storeKey())) || {}; }
+      catch(e){ return {}; }
+    }
+    function setAllSaved(obj){
+      localStorage.setItem(storeKey(), JSON.stringify(obj));
+    }
+    function saveForStore(){
+      const store = $('#storeSelect').value;
+      const all = getAllSaved();
+      all[store] = state.list;
+      setAllSaved(all);
+      toast('Saved');
+    }
+    function loadForStore(){
+      const store = $('#storeSelect').value;
+      const all = getAllSaved();
+      state.list = Array.isArray(all[store]) ? all[store] : [];
+      renderList();
+      toast('Loaded: '+store);
+    }
+    const autoSave = debounce(()=>saveForStore(), 150);
+    const autoSaveDebounced = debounce(()=>saveForStore(), 500);
+
+    // ====== Export / Utility ======
+    function toText(){
+      const store = $('#storeSelect').value;
+      let lines = [`Kirana List — ${store}`,'---------------------------'];
+      state.list.forEach((it,i)=>{
+        const note = it.note? ` (${it.note})` : '';
+        lines.push(`${i+1}. ${it.name} — ${it.qty} ${it.unit}${note}`);
+      });
+      return lines.join('\n');
+    }
+
+    function downloadCSV(){
+      const rows = [['S.No','Item','Qty','Unit','Note','Store']];
+      const store = $('#storeSelect').value;
+      state.list.forEach((it,i)=>rows.push([i+1,it.name,it.qty,it.unit,it.note||'',store]));
+      const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download='kirana_list.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyToClipboard(){
+      const text = toText();
+      navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>{
+        prompt('Copy manually:', text);
+      });
+    }
+
+   function printPDF() {
+  const printDiv = document.getElementById("printArea");
+  const store = document.getElementById("storeSelect").value;
+
+  let html = `<h2>उमेश वर्मा किराना स्टोर कांधरपुर (9870917090)</h2><hr/><ol>`;
+  state.list.forEach(it => {
+    const note = it.note ? ` (${it.note})` : "";
+    html += `<li>${it.name} — ${it.qty} ${it.unit}${note}</li>`;
+  });
+  html += "</ol>";
+
+  printDiv.innerHTML = html;
+
+  // अब सीधे उसी पेज को प्रिंट करेंगे
+  window.print();
+}
+
+
+    function toast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.position='fixed'; t.style.bottom='20px'; t.style.right='20px';
+      t.style.background='rgba(36, 197, 94, .95)'; t.style.color='#06270f';
+      t.style.padding='10px 14px'; t.style.borderRadius='12px'; t.style.fontWeight='700';
+      t.style.boxShadow='0 10px 30px rgba(0,0,0,.3)';
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(), 1400);
+    }
+
+    function debounce(fn,delay){
+      let t; return function(...args){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args),delay); };
+    }
+
+    // ====== Custom Item ======
+    $('#addCustomItem').addEventListener('click', ()=>{
+      const name = prompt('आइटम का नाम:');
+      if(!name) return;
+      const unit = prompt('यूनिट (kg/L/pcs/pkt):','pcs') || 'pcs';
+      const qty = parseInt(prompt('Qty:', '1')||'1',10) || 1;
+      const id = name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+      addToList(id, qty);
+      // Update the last added with proper name & unit
+      const it = state.list.find(x=>x.id===id);
+      if(it){ it.name = name; it.unit = unit; }
+      renderList();
+      autoSave();
+    });
+
+    // ====== Buttons ======
+    $('#copyBtn').addEventListener('click', copyToClipboard);
+    $('#csvBtn').addEventListener('click', downloadCSV);
+    $('#printBtn').addEventListener('click', printPDF);
+    $('#clearListBtn').addEventListener('click', clearList);
+    $('#saveBtn').addEventListener('click', saveForStore);
+    $('#loadBtn').addEventListener('click', loadForStore);
+
+    // ====== Init ========
+    renderCatalog();
+    loadForStore();
+  </script>
+</body>
+</html> 
